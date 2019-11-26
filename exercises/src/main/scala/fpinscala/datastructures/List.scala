@@ -52,40 +52,40 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def tail[A](l: List[A]): List[A] = l match {
     case Nil => Nil
-    case Cons(head, tail) => tail
+    case Cons(_, tail) => tail
   }
 
   def head[A](l: List[A]): A = l match {
-    case Cons(x,xs) => x
+    //case Nil => throw ElementNotFoundException
+    case Cons(x, xs) => x
   }
 
   def setHead[A](l: List[A], h: A): List[A] = Cons(h, l)
 
+  def setHead2[A](l: List[A], h: A): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => Cons(h, xs)
+  }
+
   def drop[A](l: List[A], n: Int): List[A] = n match {
-    case 0 => l
+    case 0 => l 
+    case x if (x < 0) => l
     case _ => drop(tail(l), n-1)
   }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
-    if (f(head(l))) dropWhile(tail(l), f)
-    else l
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => if (f(x)) dropWhile(xs, f) else l
   }
-  // Alternatively,
-  // match f(l.head) {
-  //   case true => dropWhile(l.tail, f)
-  //   case false => l
-  // }
   
 
-  def init[A](l: List[A]): List[A] = {
-    def rec[A](res: List[A], list: List[A]): List[A] = list match {
-      case Nil => res
-      case Cons(x, y) => rec(Cons(x, res), tail(list))
-    }
-    rec(List(), l)
+  def init[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, Nil) => Nil
+    case Cons(x, xs) => Cons(x, init(xs))
   }
 
-  def length[A](l: List[A]): Int = foldRight(l, 0) ( (x, y) => 1 + y )
+  def length[A](l: List[A]): Int = foldRight(l, 0) ( (_, y) => 1 + y )
 
   // Exercise 3.10
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
@@ -96,13 +96,13 @@ object List { // `List` companion object. Contains functions for creating and wo
   // Exercise 3.11
   def sum3(ns: List[Int]) = foldLeft(ns, 0)(_ + _)
   def prod3(ns: List[Int]) = foldLeft(ns, 1)(_ * _)
-  def length2(ns: List[Int]) = foldLeft(ns, (1-head(ns))) ((x,y)=> x + 1) // ?? maybe this would in fact work with foldRight
-  def length3(ns: List[Int]) = foldLeft(ns, 1)((x,y)=> x + 1)
+  def length2(ns: List[Int]) = foldRight(ns, (1-head(ns))) ((x,_)=> x + 1) // ?? maybe this would in fact work with foldRight
+  def length3(ns: List[Int]) = foldLeft(ns, 1)((x,_)=> x + 1)
 
   // Exercise 3.12 - List Reverse function
   def reverse[A](xs: List[A]) = {
     //foldLeft(xs, head(xs))((x,y) => Cons(x,))
-    foldLeft(xs, List[A]())(setHead)
+    foldLeft(xs, List[A]())((x, y) => Cons(y, x))
   }
 
   // Exercise 3.13 - Write foldL in terms of foldR and vice-versa
@@ -112,13 +112,13 @@ object List { // `List` companion object. Contains functions for creating and wo
   }
   def foldRfromL[A,B](l: List[A], z:B)(f: (A,B)=>B) = ???
 
-  // Exercise 3.14 - Append in terms of foldLeft / foldRight
-def appendFL[A](a1: List[A], a2: List[A]): List[A] = {
-  foldLeft(reverse(a1), a2)(setHead)
-}
-def appendFR[A](a1: List[A], a2: List[A]): List[A] = {
-  foldRight(a1, a2)(Cons(_,_))
-}
+    // Exercise 3.14 - Append in terms of foldLeft / foldRight
+  def appendFL[A](a1: List[A], a2: List[A]): List[A] = {
+    foldLeft(reverse(a1), a2)(setHead)
+  }
+  def appendFR[A](a1: List[A], a2: List[A]): List[A] = {
+    foldRight(a1, a2)(Cons(_,_))
+  }
 
   // Exercise 3.15 - Concatenation of a list(lists) into a single list (maybe flatMap?)
   def fMap[A](l: List[A]*): List[A] = {
