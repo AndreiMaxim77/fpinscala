@@ -116,12 +116,12 @@ object List { // `List` companion object. Contains functions for creating and wo
     //foldRight(l, z)((a,b)=>b)
     foldRight(l, z)((a,b)=>f(b,a))
   }
-  
+
   foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B
   foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B
 
   def foldRfromL[A,B](l: List[A], z:B)(f: (A,B)=>B) = {
-    foldLeft[A,B](l, z)
+    foldLeft[A,B](l, z)((a,b)=>f(b,a))
   }
 
     // Exercise 3.14 - Append in terms of foldLeft / foldRight
@@ -195,6 +195,7 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   // Exercise 3.24
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
-
+    func1 map (1,2,3,4) to ((1), (1,2), (1,2,3), (1,2,3,4))
+    sup.map(func1).filter(_ == sub)
   }
 }
